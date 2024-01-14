@@ -21,7 +21,8 @@ document.querySelector('#app').innerHTML = `
         </div>
         <div class="h-full text-xl mt-2" id="colors">
             <div class="cursor-pointer" data-value="#4060a0">Capri Blue</div>
-            <div class="cursor-pointer" data-value="#a06040">Red</div>
+            <div class="cursor-pointer" data-value="#60b0ff">blue</div>
+            <div class="cursor-pointer" data-value="#60b0ff" data-matte="true">blue Matte</div>
         </div>
 
     </div>

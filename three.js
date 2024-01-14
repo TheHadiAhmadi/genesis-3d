@@ -11,10 +11,9 @@ function addControls(scene, camera, renderer, store) {
   controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
   controls.dampingFactor = 0.1;
   controls.screenSpacePanning = true;
-  controls.minDistance = 5;
-  controls.maxDistance = 7;
-  controls.distance = 5;
-  controls.minPolarAngle = (0.4 * Math.PI) / 2;
+  controls.minDistance = 4;
+  controls.maxDistance = 4;
+  controls.minPolarAngle = (0.1 * Math.PI) / 2;
   controls.maxPolarAngle = (0.9 * Math.PI) / 2;
     
 
@@ -23,10 +22,10 @@ function addLight(scene, car) {
     const light = new THREE.AmbientLight( 0xffffff, 1 ); // soft white light
     scene.add( light );
 
-    const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
     directionalLight.target = car
     directionalLight.position.setX(20)
-    directionalLight.position.setY(20)
+    directionalLight.position.setY(80)
     directionalLight.position.setZ(20)
 
     scene.add( directionalLight );
@@ -43,8 +42,7 @@ function loadCarModel(store) {
 
             gltf.scene.traverse((object) => {
                 if(object.material) {
-                    object.material.metalness = 0.5 
-
+                    object.material.metalness = 0.2 
                 }
                 console.log(object.material?.color.getHex() === 16777215)
                 object.userData.isBody = object.material?.color
@@ -57,9 +55,9 @@ function loadCarModel(store) {
                 gltf.scene.traverse((object) => {
                   if (object.userData.isBody) {
                     if (isMatte) {
-                      object.material.metalness = 0;
+                      object.material.metalness = 0.2;
                     } else {
-                      object.material.metalness = 0.5;
+                      object.material.metalness = 0.8;
                     }
                     object.material.color.set(threeColor);
                   }
