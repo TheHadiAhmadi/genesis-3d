@@ -42,9 +42,10 @@ function loadShadow() {
         } )
     );
     mesh.rotation.x = - Math.PI / 2;
-    mesh.rotation.z = - Math.PI / 2;
+    // mesh.rotation.z = - Math.PI / 2;
 
-    mesh.position.x = 1.4;
+    // mesh.position.x = -1.4;
+    mesh.position.z = -1.4
 
     return mesh;
 }
@@ -53,40 +54,51 @@ function loadCarModel(store) {
     const loader = new GLTFLoader();
 
     return new Promise((resolve) => {
-        loader.load( '/GV60.glb', function ( gltf ) {
+        //loader.load( '/GV60.glb', function ( gltf ) {
+        loader.load( '/GV60_color.glb', function ( gltf ) {
             gltf.scene.position.setX(-1.35)
             gltf.scene.position.setY(-0.5)
             gltf.scene.position.setZ(0)
 
+            gltf.scene.rotation.y = -Math.PI / 2
+
             const shadow = loadShadow()
             gltf.scene.add(shadow)
+
+            const colorMap = {}
 
             gltf.scene.traverse((object) => {
                 if(object.material) {
                     // object.material.metalness = 0.2 
+                    console.log(object.material.color.getHex())
+                    colorMap[object.material.color.getHex()] ??= 0
+                    colorMap[object.material.color.getHex()] += 1
                 }
-                if(object.material?.color.getHex() === 16777215) {
-                    // object.userData.isBody = true;
-                    console.log('in body')
+                
+                if(object.material?.color.getHex() === 8363941) {
+                    object.userData.isBody = true;
+                    //console.log('in body')
                 } else {
-                    console.log('not in body')
+                    //console.log('not in body')
 
                 }
                 // if (object.material.color) {
                //  }
             })
               
+            console.log(colorMap)
                         store.setCarColor = function(color, isMatte) {
                             const threeColor = new THREE.Color(color)
 
                 gltf.scene.traverse((object) => {
                   if (object.userData.isBody) {
                     if (isMatte) {
+                      object.material.metalness = 0.2;
                       // object.material.metalness = 0.2;
                     } else {
-                      // object.material.metalness = 0.8;
+                      object.material.metalness = 0.8;
                     }
-                    // object.material.color.set(threeColor);
+                    object.material.color.set(threeColor);
                   }
               });
             }
