@@ -11,15 +11,15 @@ function addControls(scene, camera, renderer, store) {
   controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
   controls.dampingFactor = 0.1;
   controls.screenSpacePanning = true;
-  controls.minDistance = 4;
-  controls.maxDistance = 4;
+  controls.minDistance = 5;
+  controls.maxDistance = 5;
   controls.minPolarAngle = (0.1 * Math.PI) / 2;
   controls.maxPolarAngle = (0.9 * Math.PI) / 2;
     
 
 }
 function addLight(scene, car) {
-    const light = new THREE.AmbientLight( 0xffffff, 1 ); // soft white light
+    const light = new THREE.AmbientLight( 0xffffff, 0.2 ); // soft white light
     scene.add( light );
 
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -31,6 +31,24 @@ function addLight(scene, car) {
     scene.add( directionalLight );
 }
 
+function loadShadow() {
+    const shadow = new THREE.TextureLoader().load('/shadow.png')
+
+    const mesh = new THREE.Mesh(
+    // new THREE.PlaneGeometry( 8 * 4,7.1 * 4 ),
+        new THREE.PlaneGeometry( 5.1 * 2,5.2 * 2 ),
+        new THREE.MeshBasicMaterial( {
+            map: shadow, blending: THREE.MultiplyBlending, toneMapped: false, transparent: true
+        } )
+    );
+    mesh.rotation.x = - Math.PI / 2;
+    mesh.rotation.z = - Math.PI / 2;
+
+    mesh.position.x = 1.4;
+
+    return mesh;
+}
+
 function loadCarModel(store) {
     const loader = new GLTFLoader();
 
@@ -40,26 +58,35 @@ function loadCarModel(store) {
             gltf.scene.position.setY(-0.5)
             gltf.scene.position.setZ(0)
 
+            const shadow = loadShadow()
+            gltf.scene.add(shadow)
+
             gltf.scene.traverse((object) => {
                 if(object.material) {
-                    object.material.metalness = 0.2 
+                    // object.material.metalness = 0.2 
                 }
-                console.log(object.material?.color.getHex() === 16777215)
-                object.userData.isBody = object.material?.color
+                if(object.material?.color.getHex() === 16777215) {
+                    // object.userData.isBody = true;
+                    console.log('in body')
+                } else {
+                    console.log('not in body')
+
+                }
                 // if (object.material.color) {
                //  }
             })
-            store.setCarColor = function(color, isMatte) {
-                const threeColor = new THREE.Color(color)
+              
+                        store.setCarColor = function(color, isMatte) {
+                            const threeColor = new THREE.Color(color)
 
                 gltf.scene.traverse((object) => {
                   if (object.userData.isBody) {
                     if (isMatte) {
-                      object.material.metalness = 0.2;
+                      // object.material.metalness = 0.2;
                     } else {
-                      object.material.metalness = 0.8;
+                      // object.material.metalness = 0.8;
                     }
-                    object.material.color.set(threeColor);
+                    // object.material.color.set(threeColor);
                   }
               });
             }
@@ -92,6 +119,7 @@ export async function setupThree(element, store) {
     store.setBgColor = (color) => {
         const threeColor = new THREE.Color(color)
         scene.background = threeColor
+        // scene.background = new THREE.Color("black")
     }
 
     store.scene = scene
