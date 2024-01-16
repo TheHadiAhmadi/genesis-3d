@@ -19,7 +19,7 @@ function addControls(scene, camera, renderer, store) {
 
 
 function addLight(scene, car, store) {
-    const light = new THREE.AmbientLight( 0xffffff, 0.2 ); // soft white light
+    const light = new THREE.AmbientLight( 0xffffff, 1 ); // soft white light
     scene.add( light );
 
     store.onKey('d', () => {
@@ -51,18 +51,11 @@ function addLight(scene, car, store) {
         console.log(directionalLight.position)
     })
 
-    const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    const directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
     directionalLight.target = car
     directionalLight.position.setX(20)
     directionalLight.position.setY(80)
     directionalLight.position.setZ(20)
-
-    const cube = new THREE.BoxGeometry(0.5, 0.5, 0.5)
-
-    cube.position = directionalLight.position
-    const mesh = new THREE.Mesh(cube, new THREE.MeshBasicMaterial())
-
-    scene.add(mesh)
 
     scene.add( directionalLight );
 }
@@ -123,24 +116,25 @@ function loadCarModel(store) {
             })
               
             console.log(colorMap)
-                        store.setCarColor = function(color, isMatte) {
-                            const threeColor = new THREE.Color(color)
+            store.setCarColor = function(color, isMatte) {
+            const threeColor = new THREE.Color(color)
 
-                gltf.scene.traverse((object) => {
-                  if (object.userData.isBody) {
-                    if (isMatte) {
-                      object.material.metalness = 0.2;
-                      // object.material.metalness = 0.2;
-                    } else {
-                     object.material.metalness = 0.8;
-                    }
-                    object.material.color.set(threeColor);
-                  }
-              });
-            }
-        const color = document.querySelector('#colors [data-value]').dataset.value
+            gltf.scene.traverse((object) => {
+              if (object.userData.isBody) {
+                if (isMatte) {
+                  object.material.metalness = 0.2;
+                  // object.material.metalness = 0.2;
+                } else {
+                 object.material.metalness = 0.5;
+                }
+                object.material.color.set(threeColor);
+              }
+          });
+        }
+
+        const colors = document.querySelectorAll('#colors [data-value]');
         setTimeout(() => {
-            store.setColor(color)
+            store.setColor(colors[1].dataset.value)
         })
 
             resolve(gltf.scene)
@@ -157,7 +151,7 @@ export async function setupThree(element, store) {
 
     const renderer = new THREE.WebGLRenderer({
         antialias: true,
-        powerPreference: 'high-performance',
+        // powerPreference: 'high-performance',
         canvas: element
     });
 
@@ -173,19 +167,20 @@ export async function setupThree(element, store) {
 
     store.onUpdate = (cb) => onUpdates.push(cb) 
     store.setBgColor = (color) => {
-        const threeColor = new THREE.Color(color)
-        scene.background = threeColor
+        // const threeColor = new THREE.Color(color)
+        ///scene.background = threeColor
         // scene.background = new THREE.Color("black")
     }
 
     store.scene = scene
-    renderer.setSize( element.clientWidth * 4, element.clientHeight * 4, false);
+    renderer.setSize( element.clientWidth / 1, element.clientHeight / 1, false);
     // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    
 
-//     renderer.physicallyCorrectLights = true;
+     renderer.physicallyCorrectLights = true;
 
-    // renderer.gammaOutput = true;
-    // renderer.gammaFactor = 2.2;
+     renderer.gammaOutput = true;
+     renderer.gammaFactor = 2.2;
 
 
     camera.position.x = -6;
@@ -197,6 +192,7 @@ export async function setupThree(element, store) {
     const car = await loadCarModel(store)
     scene.add(car)
 
+    renderer.setClearColor(null, 0)
     addLight(scene, car, store)
     addControls(scene, camera, renderer, store)
 
