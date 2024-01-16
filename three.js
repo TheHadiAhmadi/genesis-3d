@@ -11,22 +11,58 @@ function addControls(scene, camera, renderer, store) {
   controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
   controls.dampingFactor = 0.1;
   controls.screenSpacePanning = true;
-  controls.minDistance = 5;
-  controls.maxDistance = 5;
+  controls.minDistance = 6;
+  controls.maxDistance = 6;
   controls.minPolarAngle = (0.1 * Math.PI) / 2;
   controls.maxPolarAngle = (0.9 * Math.PI) / 2;
-    
-
 }
-function addLight(scene, car) {
+
+
+function addLight(scene, car, store) {
     const light = new THREE.AmbientLight( 0xffffff, 0.2 ); // soft white light
     scene.add( light );
+
+    store.onKey('d', () => {
+        directionalLight.position.setX(directionalLight.position.x + 20)
+        console.log(directionalLight.position)
+    })
+    store.onKey('a', () => {
+        directionalLight.position.setX(directionalLight.position.x - 20)
+        console.log(directionalLight.position)
+    })
+
+    store.onKey('w', () => {
+        directionalLight.position.setY(directionalLight.position.y + 20)
+        console.log(directionalLight.position)
+    })
+
+    store.onKey('s', () => {
+        directionalLight.position.setY(directionalLight.position.y - 20)
+        console.log(directionalLight.position)
+    })
+
+    store.onKey('r', () => {
+        directionalLight.position.setZ(directionalLight.position.z + 20)
+        console.log(directionalLight.position)
+    })
+
+    store.onKey('f', () => {
+        directionalLight.position.setZ(directionalLight.position.z - 20)
+        console.log(directionalLight.position)
+    })
 
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
     directionalLight.target = car
     directionalLight.position.setX(20)
     directionalLight.position.setY(80)
     directionalLight.position.setZ(20)
+
+    const cube = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+
+    cube.position = directionalLight.position
+    const mesh = new THREE.Mesh(cube, new THREE.MeshBasicMaterial())
+
+    scene.add(mesh)
 
     scene.add( directionalLight );
 }
@@ -96,7 +132,7 @@ function loadCarModel(store) {
                       object.material.metalness = 0.2;
                       // object.material.metalness = 0.2;
                     } else {
-                      object.material.metalness = 0.8;
+                     object.material.metalness = 0.8;
                     }
                     object.material.color.set(threeColor);
                   }
@@ -121,9 +157,17 @@ export async function setupThree(element, store) {
 
     const renderer = new THREE.WebGLRenderer({
         antialias: true,
-        // powerPreference: 'high-performance',
+        powerPreference: 'high-performance',
         canvas: element
     });
+
+    store.onKey = (key, cb) => {
+        window.addEventListener('keydown', (e) => {
+            if(e.key === key) {
+                cb()
+            }
+        })
+    }
 
     let onUpdates = []
 
@@ -153,7 +197,7 @@ export async function setupThree(element, store) {
     const car = await loadCarModel(store)
     scene.add(car)
 
-    addLight(scene, car)
+    addLight(scene, car, store)
     addControls(scene, camera, renderer, store)
 
     function animate() {
